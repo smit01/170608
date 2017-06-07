@@ -1,0 +1,76 @@
+﻿Prods
+		pid  ... qty
+		1        100
+甲                            乙
+100  <------------
+                  -------->  100
+				             -20
+			 80 <----------------- 80
+				    update prods set qty = 80 where pid = 1 and qty = 100
+-30
+ 70 -------------------> ?!
+ update prods set qty = 70 where pid = 1 and qty = 100
+
+ 80 <--------------------
+-30
+ 50 ------------------> 50
+  update prods set qty = 50 where pid = 1 and qty = 80
+
+
+
+
+ ================================
+
+ 		pid  ... qty
+		1        100
+甲                                乙
+                         ------> 100
+                                 -20
+                                  80
+                          80 <---
+80 <-----------------------
+    (read un-committed data / dirty read)
+                                 -10
+                                  70
+                          70 (commit)
+
+
+read lock: (share) other client/thread can read data, but cann't change data.
+write lock: (exclusive) only I can.
+
+-------------------- begin ---------------------
+read  share lock --> reading --> unlock
+write excluive lock ┐
+                    │
+                    │
+-------------------- end ------------------------
+
+
+
+ ================================
+
+ 		pid  ... qty
+		1        100
+甲                            
+100  <------------       S/X
+				 80 <-------- 80  乙
+ 80  <------------
+				 70 <-------- 70  丙
+ 70  <------------
+				 50 <-------- 50  丁
+ 50  <------------
+
+
+-------------------- begin ---------------------
+read     share lock ---> reading -- read   ┐
+                                           │
+                                           │
+-------------------- end ------------------------
+
+
+
+
+
+
+
+
